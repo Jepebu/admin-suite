@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 import subprocess
 import re
+import platform
 
 dark_mode = False  # Variable to track dark mode state
 
@@ -47,8 +48,19 @@ def run_command(button):
     
     command = find_and_replace_variables(command)
 
-    subprocess.run(command, shell=True)
-
+    if platform.system() == "Windows":
+        process = subprocess.Popen(['start', 'cmd', '/k', command], shell=True, stdin=subprocess.PIPE)
+    elif platform.system() == "Linux":
+        process = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', command], stdin=subprocess.PIPE)
+    elif platform.system() == "Darwin":  # macOS
+        process = subprocess.Popen(['osascript', '-e', 'tell app "Terminal" to do script "{}"'.format(command)], stdin=subprocess.PIPE)
+        
+    # Write an empty command to the terminal process to keep it open
+    process.stdin.write(b"\n")
+    process.stdin.flush()
+    
+    
+    
 def find_and_replace_variables(command):
     if "$" in command:
         user_input = simpledialog.askstring("Variable Input", f"Enter value for variable:")
