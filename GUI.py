@@ -6,6 +6,7 @@ def main():
     import re
     import platform
     import pickle
+    import sys
     global buttons
     global dark_mode
     dark_mode = False
@@ -24,7 +25,7 @@ def main():
             state["buttons"].append(button_info)
         with open(STATE_FILE, "wb") as file:
             pickle.dump(state, file)
-        exit()
+        sys.exit()
         
     def load_state():
         try:
@@ -167,7 +168,7 @@ def main():
             root.grid_columnconfigure(col, weight=1)
 
     root = tk.Tk()
-    root.title("Button GUI")
+    root.title("Admin Suite")
     root.minsize(400, 300)  # Set minimum size of the window
 
     # Create a frame for the settings and add button
