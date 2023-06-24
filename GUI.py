@@ -1,5 +1,5 @@
 
-def main():
+def main(root):
     import tkinter as tk
     from tkinter import messagebox, simpledialog
     import subprocess
@@ -7,6 +7,8 @@ def main():
     import platform
     import pickle
     import sys
+    import os
+    import signal
     global buttons
     global dark_mode
     dark_mode = False
@@ -20,7 +22,7 @@ def main():
         for button in buttons:
             button_info = {
                 "text": button["text"],
-                "command": button["command"],
+                "command": button["command"].__str__(),
             }
             state["buttons"].append(button_info)
         with open(STATE_FILE, "wb") as file:
@@ -104,11 +106,12 @@ def main():
         command = find_and_replace_variables(command)
 
         if platform.system() == "Windows":
-            process = subprocess.Popen(['start', 'cmd', '/k', command], shell=True, stdin=subprocess.PIPE)
+            process = subprocess.Popen(['start', 'cmd', '/k', command], shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+            #process.kill()
         elif platform.system() == "Linux":
-            process = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', command], stdin=subprocess.PIPE)
+            process = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         elif platform.system() == "Darwin":  # macOS
-            process = subprocess.Popen(['osascript', '-e', 'tell app "Terminal" to do script "{}"'.format(command)], stdin=subprocess.PIPE)
+            process = subprocess.Popen(['osascript', '-e', 'tell app "Terminal" to do script "{}"'.format(command)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
             
         # Write an empty command to the terminal process to keep it open
         process.stdin.write(b"\n")
@@ -167,7 +170,7 @@ def main():
             root.grid_rowconfigure(row, weight=1)
             root.grid_columnconfigure(col, weight=1)
 
-    root = tk.Tk()
+    #root = tk.Tk()
     root.title("Admin Suite")
     root.minsize(400, 300)  # Set minimum size of the window
 
