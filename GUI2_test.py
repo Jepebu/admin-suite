@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import subprocess
+import re
 
 dark_mode = False  # Variable to track dark mode state
 
@@ -41,17 +42,28 @@ def open_settings_window():
     dark_mode_checkbox = tk.Checkbutton(settings_window, text="Dark Mode", command=toggle_dark_mode)
     dark_mode_checkbox.pack(pady=10)
 
-def run_command(command):
+def run_command(button):
+    command = str(button)  # Convert command to string
+    
+    command = find_and_replace_variables(command)
+
     subprocess.run(command, shell=True)
 
+def find_and_replace_variables(command):
+    if "$" in command:
+        user_input = simpledialog.askstring("Variable Input", f"Enter value for variable:")
+        modified_command = re.sub('\$[A-Za-z0-9]+', user_input, command)
+        return modified_command
+    else:
+        return command
 def add_button():
     if len(buttons) < 16:
         # Create the button configuration dialog
         dialog = ButtonConfigDialog(root, title="Button Configuration")
         
         if dialog.result:
-            button = tk.Button(root, text=dialog.button_name,
-                               command=lambda cmd=dialog.button_command: run_command(cmd))
+            button = tk.Button(root, text=dialog.button_name)
+            button_command = dialog.button_command
             button.bind("<Button-3>", lambda event, btn=button: confirm_delete_button(event, btn))
             
             # Set button style based on dark mode state
@@ -60,12 +72,22 @@ def add_button():
             else:
                 button.config(bg="grey94", fg="black")
             
+            button["command"] = dialog.button_command
+            button.config(command=lambda cmd=button_command: run_command(cmd))
+            #button.config(command=lambda btn=button: run_command(btn))
+            
             buttons.append(button)
+            
+            # Calculate the row and column for button placement
             row = (len(buttons) - 1) // 2 + 2
             col = (len(buttons) - 1) % 2
+            
             button.grid(row=row, column=col, sticky="nsew")
+            
             root.grid_rowconfigure(row, weight=1)
             root.grid_columnconfigure(col, weight=1)
+    else:
+        messagebox.showinfo("Maximum Buttons Reached", "You have reached the maximum limit of buttons.")
 
 def confirm_delete_button(event, button):
     result = messagebox.askquestion("Confirmation", "Are you sure you want to delete this button?")
@@ -76,7 +98,7 @@ def confirm_delete_button(event, button):
 
 def reconfigure_grid():
     for i, button in enumerate(buttons):
-        row = (i // 2) + 2
+        row = i // 2 + 2
         col = i % 2
         button.grid(row=row, column=col, sticky="nsew")
         root.grid_rowconfigure(row, weight=1)
