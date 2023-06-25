@@ -94,6 +94,12 @@ def main(root):
         def toggle_dark_mode():
             global dark_mode
             # Update the dark mode style for all buttons
+            
+            if dark_mode == False:
+                root.config(bg="black")
+            else:
+                root.config(bg="grey94")
+            
             for button in tkinter_button_objects:
                 if dark_mode == False:
                     button.config(bg="black", fg="grey94")
