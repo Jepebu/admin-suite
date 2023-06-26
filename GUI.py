@@ -7,8 +7,6 @@ def main(root):
     import platform
     import pickle
     import sys
-    import os
-    import signal
     global tkinter_button_objects
     global dark_mode
     button_data_list = []
