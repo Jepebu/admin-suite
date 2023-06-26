@@ -1,6 +1,5 @@
 from GUI import main
 import tkinter as tk
-import sys
 
 
 if __name__ == "__main__":
