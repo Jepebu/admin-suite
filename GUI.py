@@ -197,7 +197,7 @@ def main(root):
             root.grid_columnconfigure(col, weight=1)
 
     #root = tk.Tk()
-    root.title("Admin Suite")
+    root.title("Toolbox")
     root.minsize(400, 300)  # Set minimum size of the window
 
     # Create a frame for the settings and add button
