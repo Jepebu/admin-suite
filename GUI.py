@@ -7,6 +7,7 @@ def main(root):
     import platform
     import pickle
     import sys
+    import shlex
     global tkinter_button_objects
     global dark_mode
     button_data_list = []
@@ -120,7 +121,9 @@ def main(root):
         if platform.system() == "Windows":
             process = subprocess.Popen(['start', 'cmd', '/k', command], shell=True,stdout=subprocess.PIPE, stderr=subprocess.PIPE,stdin=subprocess.PIPE)
         elif platform.system() == "Linux":
-            process = subprocess.Popen(['gnome-terminal', '--', 'bash', '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+            escaped_command = shlex.quote(command)
+            formatted_code = """gnome-terminal -e '/bin/bash -c "{}"; bash'""".format(escaped_command)
+            process = subprocess.Popen([formatted_], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
         elif platform.system() == "Darwin":  # macOS
             process = subprocess.Popen(['osascript', '-e', 'tell app "Terminal" to do script "{}"'.format(command)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
             
@@ -132,9 +135,11 @@ def main(root):
         
     def find_and_replace_variables(command):
         if "$" in command:
-            user_input = simpledialog.askstring("Variable Input", f"Enter value for variable:")
-            modified_command = re.sub('\$[A-Za-z0-9]+', user_input, command)
-            return modified_command
+            for i in range(0,command.count("$")):
+                var = re.search("\$[A-Za-z0-9]+",command)
+                user_input = simpledialog.askstring("Variable Input", f"Enter value for variable "+str(var.group())+":")
+                command = re.sub('\$[A-Za-z0-9]+', user_input, command, 1)
+                return command
         else:
             return command
             
@@ -182,6 +187,9 @@ def main(root):
     def confirm_delete_button(event, button):
         result = messagebox.askquestion("Confirmation", "Are you sure you want to delete this button?")
         if result == "yes":
+            for i,o in enumerate(button_data_list):
+                if o.name == button["text"]:
+                    del button_data_list[i]
             button.grid_forget()
             tkinter_button_objects.remove(button)
             reconfigure_grid()
