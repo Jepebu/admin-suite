@@ -139,7 +139,7 @@ def main(root):
                 var = re.search("\$[A-Za-z0-9]+",command)
                 user_input = simpledialog.askstring("Variable Input", f"Enter value for variable "+str(var.group())+":")
                 command = re.sub('\$[A-Za-z0-9]+', user_input, command, 1)
-                return command
+            return command
         else:
             return command
             
